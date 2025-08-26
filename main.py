@@ -17,11 +17,11 @@ pygame.init()
 
 screen = pygame.display.set_mode((s_w , s_h))
 
-b_g =pygame.image.load("background.png")
+b_g =pygame.image.load("bg (2).png")
 
 pygame.display.set_caption("Space Invader")
 
-play_img = pygame.image.load("player.png")
+play_img = pygame.image.load("spaceship (1).png")
 playx = play_s_x
 playy = play_s_y
 playx_ch = 0
@@ -75,5 +75,61 @@ def fire_bullet(x,y):
 def isCollision ( enex , eney , bulletx , bullety):
     d = math.sqrt((enex - bulletx) ** 2 + (eney - bullety) ** 2)
     return d < collision_d
+
+running = True
+while running:
+    screen.fill((0,0,0))
+    screen.blit(b_g,(0,0))
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+             playx_ch = -5  
+            if event.key == pygame.K_RIGHT:
+             playx_ch = 5
+            if event.key == pygame.K_SPACE and bullet_state == "ready":
+             bulletx = playx
+            fire_bullet(bulletx , bullety)
+        if event.type == pygame.KEYUP and event.key in [pygame.K_LEFT , pygame.K_RIGHT]:
+             playx_ch = 0
+
+        playx += playx_ch
+        playx = max(0 , min(playx , s_w - 64))
+
+        for i in range (num_of_ene):
+           if eney[i] > 340:
+               for j in range(num_of_ene):
+                 eney[j] = 2000
+               game_over_text()
+               break
+           enex[i] += enex_ch[i]
+           if enex[i] <= 0 or enex[i] >= s_w - 64:
+             enex_ch[i] *= -1
+             eney[i] += eney_ch[i]
+
+           if isCollision(enex[i],eney[i],bulletx,bullety):
+              bullety = play_s_y
+              bullet_state = "ready"
+              score_val += 1
+              enex[i] = random.randint(0,s_w - 64)
+              eney[i] = random.randint(ene_s_y_min,ene_s_y_max)
+           enemy(enex[i], eney[i],i)
+
+        if bullety <= 0:
+           bullety = play_s_y
+           bullet_state = "ready"
+        elif bullet_state == "fire":
+           fire_bullet(bulletx , bullety)
+           bullety -=bullety_ch
+
+        player(playx,playy)
+        show_score(textx,texty)
+        pygame.display.update()
+                                       
+              
+            
+        
                 
 
